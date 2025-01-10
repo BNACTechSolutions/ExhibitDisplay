@@ -6,22 +6,19 @@ import { ExhibitDataProps, TranslationProps } from "@/types/exhibitData";
 import api from "@/api/index";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import AudioButton from "@/components/AudioButton";
+import { ChevronDown, Volume2, Video } from "lucide-react";
 
 const ExhibitPage = () => {
-    const router = useRouter();
+  const router = useRouter();
   const [exhibitData, setExhibitData] = useState<ExhibitDataProps | null>(null);
   const [translation, setTranslation] = useState<TranslationProps | null>(null);
   const [language, setLanguage] = useState<string | null>(null);
-  const [exhibitCode, setExhibitCode] = useState<string>("");
+  const [showISLModal, setShowISLModal] = useState(false);
   const path = usePathname();
   const code = path.split("/").pop();
   const clientCode = path.split("/")[1];
-  console.log("Client Code: ", clientCode);
 
   useEffect(() => {
-    // Check for saved language in cookies
     const savedLanguage = Cookies.get("language");
     setLanguage(savedLanguage || "english"); // Default to English
   }, []);
@@ -34,10 +31,8 @@ const ExhibitPage = () => {
           throw new Error("Failed to fetch exhibits");
         }
         const data = response.data;
-        console.log("Exhibit data:", data);
         setExhibitData(data.exhibit);
 
-        // Find and set the translation based on the selected language
         const selectedTranslation = data.exhibit.translations.find(
           (trans: TranslationProps) => trans.language.toLowerCase() === (language || "english")
         );
@@ -52,155 +47,163 @@ const ExhibitPage = () => {
     }
   }, [code, language]);
 
-  const handleLanguageSelect = (selectedLanguage: string) => {
-    Cookies.set("language", selectedLanguage, { expires: 365 });
-    setLanguage(selectedLanguage);
-  };
-
   return (
-    <div className="flex flex-col w-11/12 md:w-8/12 mx-auto py-10 mt-16">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-[#003A6F] text-sm md:text-base font-semibold hover:text-[#005A9C] transition-all"
-        >
-          <Icon icon="material-symbols:home" style={{color: "black"}} className="text-lg md:text-xl" />
-          Back
-        </button>
-        <div className="flex flex-row items-center gap-2">
-        <input
-            type="text"
-            placeholder="Exhibit Code"
-            className="px-4 py-3 w-full rounded-lg border border-gray-500 shadow-md focus:outline-none focus:ring-2 focus:ring-gray-600 transition duration-300 ease-in-out"
-            value={exhibitCode}
-            onChange={(e) => setExhibitCode(e.target.value)}
-          />
-          <button
-            
-            onClick={() => router.push(`/${clientCode}/exhibit/${exhibitCode}`)}><Icon icon="akar-icons:search" style={{color: "black"}} className="text-lg md:text-xl" /></button>
-          
+    <>
+      {/* ISL Video Modal */}
+      {showISLModal && exhibitData?.islVideo && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-semibold text-amber-900">Sign Language Guide</h3>
+              <button
+                onClick={() => setShowISLModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+            <div className="relative pt-[56.25%]">
+              <video
+                className="absolute inset-0 w-full h-full rounded-xl"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src={exhibitData.islVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
         </div>
-        
-      </div>
-      {exhibitData ? (
-        <div className="flex flex-col gap-8 font-sans">
-          {/* Language Selector */}
-          {/* <div className="flex justify-end">
-            <select
-              value={language || "english"}
-              onChange={(e) => handleLanguageSelect(e.target.value)}
-              className="border border-gray-300 rounded px-4 py-2 text-gray-600"
-            >
-              {exhibitData.translations.map((trans) => (
-                <option key={trans._id} value={trans.language}>
-                  {trans.language.charAt(0).toUpperCase() + trans.language.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div> */}
+      )}
 
-          {/* Exhibit Title */}
-          <div className="flex justify-center items-center bg-gray-100 border border-gray-300 rounded-lg p-4">
-            <h1 className="text-xl md:text-3xl font-semibold text-gray-800 text-center pr-2">
-              {translation?.title || exhibitData.title}
-            </h1>
-            {translation?.audioUrls?.title && (
-              <AudioButton
-                audioUrl={translation?.audioUrls?.title}
-              />
-            )}
-          </div>
-
-          {/* Title Image */}
-          <div className="rounded-lg overflow-hidden shadow-md">
-            <Image
-              className="object-contain w-full h-1/2"
-              src={exhibitData.titleImage}
-              alt={translation?.title || exhibitData.title || "Exhibit Image"}
-              width={800}
-              height={250}
-              priority
-            />
-          </div>
-
-          {exhibitData.advertisementImage && (
-                 <div className="flex py-8 justify-center pb-3"> 
-                   <Image 
-                     src={exhibitData.advertisementImage} 
-                     alt="Advertisement" 
-                     width={400} 
-                     height={400} 
-                     priority 
-                   /> 
-                 </div>
-               )}
-
-          {/* Description */}
-          <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm text-gray-700 leading-relaxed">
-          {translation?.audioUrls?.description && (
-              // <button
-              //   onClick={() => new Audio(translation?.audioUrls?.description).play()}
-              //   className="text-blue-500 ml-4"
-              // >
-              //   🎧
-              // </button>
-              <AudioButton
-                audioUrl={translation?.audioUrls?.description}
-              />
-            )}
-            <p className="text-base md:text-lg">
-              {translation?.description || exhibitData.description}
-            </p>
-          </div>
-
-          {exhibitData.islVideo && (
-         <div className="w-full flex justify-center">
-          
-           <div className="w-full max-w-md">
-           <div className="text-center">ISL Video</div> {/* Reduced max-width for better proportions */}
-             <video
-               className="rounded-lg shadow-lg w-full aspect-video" /* Added aspect-video for consistent proportions */
-               controls
-               autoPlay
-               muted
-               loop
-               playsInline
-             >
-               <source src={exhibitData.islVideo} type="video/mp4" />
-               Your browser does not support the video tag.
-             </video>
-           </div>
-         </div>
-       )}
-
-          {/* Additional Images */}
-          {exhibitData.images.length > 0 && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-lg md:text-xl font-medium text-gray-800 text-center">
-                More Images
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {exhibitData.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative w-full pt-[75%] rounded-lg overflow-hidden shadow-md"
+      {/* Exhibit Page Content */}
+      {exhibitData && (
+        <div className="min-h-screen flex flex-col relative">
+          {/* Navbar */}
+          <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-40 shadow-md">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => router.back()}
+                    className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
                   >
-                    <Image
-                      src={image}
-                      alt={`Exhibit Image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
+                    Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      const exhibitSection = document.getElementById("exhibit-section");
+                      exhibitSection?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                  >
+                    Add New Code
+                  </button>
+                </div>
+                <Image src="/logo/logo.png" alt="Logo" width={120} height={40} priority />
               </div>
             </div>
-          )}
+          </nav>
+
+          {/* Hero Section */}
+          <div
+            className="relative h-screen flex items-center justify-center"
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${exhibitData.titleImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundAttachment: "fixed",
+            }}
+          >
+            <div className="text-center text-white px-4">
+              <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold mb-6 tracking-tight">
+                {translation?.title || exhibitData.title}
+              </h1>
+            </div>
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+              <ChevronDown size={48} className="text-white opacity-80" />
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="relative bg-white">
+            <div className="max-w-6xl mx-auto px-4 py-16">
+              <div className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border border-amber-100">
+                <div className="space-y-8">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <h2 className="text-3xl md:text-4xl font-bold text-amber-900">
+                        {translation?.title || exhibitData.title}
+                      </h2>
+                      {translation?.audioUrls?.title && (
+                        <button
+                          onClick={() => {
+                            const audio = new Audio(translation.audioUrls.title);
+                            audio.play();
+                          }}
+                          className="p-2 hover:bg-amber-50 rounded-full transition-colors"
+                        >
+                          <Volume2 className="w-6 h-6 text-amber-600" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex justify-center gap-4">
+                      <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+                        {translation?.description || exhibitData.description}
+                      </p>
+                      {translation?.audioUrls?.description && (
+                        <button
+                          onClick={() => {
+                            const audio = new Audio(translation.audioUrls.description);
+                            audio.play();
+                          }}
+                          className="p-2 hover:bg-amber-50 rounded-full transition-colors"
+                        >
+                          <Volume2 className="w-6 h-6 text-amber-600" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {exhibitData.islVideo && (
+                    <div className="flex justify-center pt-6">
+                      <button
+                        onClick={() => setShowISLModal(true)}
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 transition-colors"
+                      >
+                        <Video className="w-5 h-5" />
+                        <span>Watch in Sign Language</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Advertisement Section */}
+            {exhibitData.advertisementImage && (
+              <div className="mb-24">
+                <div className="max-w-lg mx-auto">
+                  <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
+                    <Image
+                      src={exhibitData.advertisementImage}
+                      alt="Advertisement"
+                      width={400}
+                      height={400}
+                      className="rounded-lg object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      ) : (
-        <p className="text-center text-lg text-gray-500">Loading exhibit data...</p>
       )}
-    </div>
+    </>
   );
 };
 
