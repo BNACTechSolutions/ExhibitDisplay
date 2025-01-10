@@ -40,7 +40,7 @@ const Hero = ({ title, description, audioDescription, audioTitle }: HeroProps) =
   return (
     <div className="">
 
-      <div className="flex flex-col md:flex-row items-center justify-center p-20 px-4 ">
+      <div className="flex flex-col md:flex-row items-center justify-center pt-20 pb-10 px-4 ">
 
         {/* Text Section */}
         <div className="p-6 rounded-lg shadow-lg bg-white/85 backdrop:blur-2xl w-full md:w-1/2">
