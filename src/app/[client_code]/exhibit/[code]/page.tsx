@@ -30,7 +30,7 @@ const ExhibitPage = () => {
   useEffect(() => {
     const fetchExhibitDetails = async () => {
       try {
-        const response = await api.get(`/api/exhibit/${code}`);
+        const response = await api.get(`/api/exhibit/${clientCode}/${code}`);
         if (response.status !== 200) {
           throw new Error("Failed to fetch exhibits");
         }
