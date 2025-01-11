@@ -76,6 +76,7 @@ export default function Page({ params }: PageProps) {
 
   useEffect(() => {
     const fetchLandingDetails = debounce(async () => {
+      console.log("Fetching landing details...");
       if (!visitorPhone || visitorPhone.length < 10) return; // Ensure phone number is complete
       try {
         const response = await api.get<LandingPage>(
@@ -83,6 +84,7 @@ export default function Page({ params }: PageProps) {
         );
         setLandingData(response.data);
         setBgImage(response.data.displayImage);
+        console.log("Landing details fetched:", response.data);
       } catch (error) {
         console.error("Error fetching landing details:", error);
       }
@@ -177,8 +179,84 @@ export default function Page({ params }: PageProps) {
     <>
       {/* Language Selector Modal */}
       {showLanguageSelector && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          {/* ... (keeping existing language selector modal code) ... */}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            <h2 className="text-lg font-semibold mb-4">Welcome</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="border p-2 rounded w-full"
+                  value={visitorName}
+                  onChange={(e) => setVisitorName(e.target.value)}
+                  placeholder="Enter your name"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  className="border p-2 rounded w-full"
+                  value={visitorPhone}
+                  onChange={(e) => setVisitorPhone(e.target.value)}
+                  placeholder="Enter your phone number"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Language
+                </label>
+                <select
+                  className="border p-2 rounded w-full"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  disabled={isSubmitting}
+                >
+                  <option value="" disabled>
+                    Choose a language
+                  </option>
+                  {landingData?.translations.map((translation) => (
+                    <option key={translation._id} value={translation.language}>
+                      {translation.language}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {formError && (
+                <p className="text-red-500 text-sm mt-2">{formError}</p>
+              )}
+
+              <button
+                className={`w-full py-2 px-4 rounded transition-colors ${
+                  isSubmitting
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : visitorName.trim() && visitorPhone.trim() && language
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-gray-300 cursor-not-allowed text-gray-500"
+                }`}
+                onClick={handleSubmit}
+                disabled={
+                  isSubmitting ||
+                  !visitorName.trim() ||
+                  !visitorPhone.trim() ||
+                  !language
+                }
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

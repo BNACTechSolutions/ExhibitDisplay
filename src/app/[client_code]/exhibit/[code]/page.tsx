@@ -7,13 +7,17 @@ import api from "@/api/index";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Volume2, Video } from "lucide-react";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const ExhibitPage = () => {
   const router = useRouter();
   const [exhibitData, setExhibitData] = useState<ExhibitDataProps | null>(null);
+
   const [translation, setTranslation] = useState<TranslationProps | null>(null);
   const [language, setLanguage] = useState<string | null>(null);
   const [showISLModal, setShowISLModal] = useState(false);
+  const [exhibitCode, setExhibitCode] = useState<string>("");
+  const [advertisementImage, setAdvertisementImage] = useState<string | null>(null);
   const path = usePathname();
   const code = path.split("/").pop();
   const clientCode = path.split("/")[1];
@@ -34,9 +38,11 @@ const ExhibitPage = () => {
         setExhibitData(data.exhibit);
 
         const selectedTranslation = data.exhibit.translations.find(
-          (trans: TranslationProps) => trans.language.toLowerCase() === (language || "english")
+          (trans: TranslationProps) =>
+            trans.language.toLowerCase() === (language || "english")
         );
         setTranslation(selectedTranslation || null);
+        setAdvertisementImage(data.advertisementImage);
       } catch (error) {
         console.error("Error fetching exhibit detail:", error);
       }
@@ -54,7 +60,9 @@ const ExhibitPage = () => {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-semibold text-amber-900">Sign Language Guide</h3>
+              <h3 className="text-2xl font-semibold text-amber-900">
+                Sign Language Guide
+              </h3>
               <button
                 onClick={() => setShowISLModal(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -86,6 +94,14 @@ const ExhibitPage = () => {
           <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-40 shadow-md">
             <div className="max-w-6xl mx-auto px-4">
               <div className="flex justify-between items-center h-16">
+                <Image
+                  src="/logo/logo.png"
+                  style={{objectFit: "contain"}}
+                  alt="Logo"
+                  width={120}
+                  height={40}
+                  priority
+                />
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => router.back()}
@@ -93,17 +109,27 @@ const ExhibitPage = () => {
                   >
                     Back
                   </button>
-                  <button
-                    onClick={() => {
-                      const exhibitSection = document.getElementById("exhibit-section");
-                      exhibitSection?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-                  >
-                    Add New Code
-                  </button>
+                  <div className="flex flex-row items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Exhibit Code"
+                      className="px-4 py-3 w-full rounded-lg border border-gray-500 shadow-md focus:outline-none focus:ring-2 focus:ring-gray-600 transition duration-300 ease-in-out"
+                      value={exhibitCode}
+                      onChange={(e) => setExhibitCode(e.target.value)}
+                    />
+                    <button
+                      onClick={() =>
+                        router.push(`/${clientCode}/exhibit/${exhibitCode}`)
+                      }
+                    >
+                      <Icon
+                        icon="akar-icons:search"
+                        style={{ color: "black" }}
+                        className="text-lg md:text-xl"
+                      />
+                    </button>
+                  </div>
                 </div>
-                <Image src="/logo/logo.png" alt="Logo" width={120} height={40} priority />
               </div>
             </div>
           </nav>
@@ -141,7 +167,9 @@ const ExhibitPage = () => {
                       {translation?.audioUrls?.title && (
                         <button
                           onClick={() => {
-                            const audio = new Audio(translation.audioUrls.title);
+                            const audio = new Audio(
+                              translation.audioUrls.title
+                            );
                             audio.play();
                           }}
                           className="p-2 hover:bg-amber-50 rounded-full transition-colors"
@@ -157,7 +185,9 @@ const ExhibitPage = () => {
                       {translation?.audioUrls?.description && (
                         <button
                           onClick={() => {
-                            const audio = new Audio(translation.audioUrls.description);
+                            const audio = new Audio(
+                              translation.audioUrls.description
+                            );
                             audio.play();
                           }}
                           className="p-2 hover:bg-amber-50 rounded-full transition-colors"
@@ -184,12 +214,12 @@ const ExhibitPage = () => {
             </div>
 
             {/* Advertisement Section */}
-            {exhibitData.advertisementImage && (
+            {advertisementImage && (
               <div className="mb-24">
                 <div className="max-w-lg mx-auto">
                   <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
                     <Image
-                      src={exhibitData.advertisementImage}
+                      src={advertisementImage}
                       alt="Advertisement"
                       width={400}
                       height={400}
