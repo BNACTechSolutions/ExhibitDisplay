@@ -29,12 +29,12 @@ const ExhibitCode = ({client_code}: ExhibitCodeProps) => {
           <input
             type="text"
             placeholder="Exhibit Code"
-            className="px-4 py-3 w-full rounded-lg border border-purple-300 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300 ease-in-out"
+            className="px-4 py-3 w-full rounded-lg border border-amber-200 shadow-md focus:outline-none focus:ring-2 focus:ring-amber-600 transition duration-300 ease-in-out"
             value={exhibitCode}
             onChange={(e) => setExhibitCode(e.target.value)}
           />
           <button
-            className="bg-purple-600 text-white px-6 py-3 w-full rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
+            className="bg-amber-100 text-amber-800  hover:bg-amber-200 transition-colors  px-6 py-3 w-full rounded-lg shadow-md  duration-300"
             onClick={onSubmit}
           >
             Submit
