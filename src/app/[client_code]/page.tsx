@@ -6,6 +6,7 @@ import api from "@/api/index";
 import Cookies from "js-cookie";
 import { debounce } from "lodash";
 import { ChevronDown, Volume2, Video } from "lucide-react";
+import StickyAdBanner from "@/components/AdBanner";
 
 type Translation = {
   audioUrls: {
@@ -97,8 +98,8 @@ export default function Page({ params }: PageProps) {
   }, [params.client_code, visitorPhone]);
 
   const scrollToExhibit = () => {
-    const element = document.getElementById('exhibit-section');
-    element?.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById("exhibit-section");
+    element?.scrollIntoView({ behavior: "smooth" });
   };
 
   const PostVisitorData = async (): Promise<ApiResponse> => {
@@ -265,8 +266,10 @@ export default function Page({ params }: PageProps) {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-semibold text-amber-900">Sign Language Guide</h3>
-              <button 
+              <h3 className="text-2xl font-semibold text-amber-900">
+                Sign Language Guide
+              </h3>
+              <button
                 onClick={() => setShowISLModal(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -297,13 +300,13 @@ export default function Page({ params }: PageProps) {
             <div className="max-w-6xl mx-auto px-4">
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center">
-                <Image
-                  src="/logo/logo.png" // Replace with your logo path
-                  alt="Aditi Logo"
-                  width={120}
-                  height={40}
-                  priority
-                />
+                  <Image
+                    src="/logo/logo.png" // Replace with your logo path
+                    alt="Aditi Logo"
+                    width={120}
+                    height={40}
+                    priority
+                  />
                 </div>
                 <button
                   onClick={scrollToExhibit}
@@ -316,13 +319,13 @@ export default function Page({ params }: PageProps) {
           </nav>
 
           {/* Hero Section */}
-          <div 
+          <div
             className="relative h-screen flex items-center justify-center"
             style={{
               backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${bgImage})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              backgroundAttachment: "fixed"
+              backgroundAttachment: "fixed",
             }}
           >
             <div className="text-center text-white px-4">
@@ -330,22 +333,27 @@ export default function Page({ params }: PageProps) {
                 {selectedTranslation?.title || landingData.title}
               </h1>
             </div>
-            
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+
+            <div
+              className="absolute bottom-24 left-1/2 transform -translate-x-1/2 animate-bounce hover:cursor-pointer"
+              onClick={() =>
+                window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
+              }
+            >
               <ChevronDown size={48} className="text-white opacity-80" />
             </div>
           </div>
 
           {/* Content Section */}
-          <div 
+          <div
             className="relative"
             style={{
               backgroundImage: `linear-gradient(to bottom, #f4e2a8, #f8f1e4)`,
               backgroundAttachment: "fixed",
               backgroundSize: "cover",
-              backgroundPosition: "center"
+              backgroundPosition: "center",
             }}
-          > 
+          >
             {/* Main Content Container */}
             <div className="max-w-6xl mx-auto px-4 py-16">
               {/* Title, Description, and Audio Section */}
@@ -359,10 +367,12 @@ export default function Page({ params }: PageProps) {
                             {selectedTranslation?.title || landingData.title}
                           </h2>
                           {selectedTranslation?.audioUrls.title && (
-                            <button 
+                            <button
                               className="p-2 hover:bg-amber-50 rounded-full transition-colors"
                               onClick={() => {
-                                const audio = new Audio(selectedTranslation.audioUrls.title);
+                                const audio = new Audio(
+                                  selectedTranslation.audioUrls.title
+                                );
                                 audio.play();
                               }}
                             >
@@ -370,16 +380,19 @@ export default function Page({ params }: PageProps) {
                             </button>
                           )}
                         </div>
-                        
+
                         <div className="space-y-4">
                           <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-                            {selectedTranslation?.description || landingData.description}
+                            {selectedTranslation?.description ||
+                              landingData.description}
                           </p>
                           {selectedTranslation?.audioUrls.description && (
-                            <button 
+                            <button
                               className="inline-flex items-center gap-2 px-4 py-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                               onClick={() => {
-                                const audio = new Audio(selectedTranslation.audioUrls.description);
+                                const audio = new Audio(
+                                  selectedTranslation.audioUrls.description
+                                );
                                 audio.play();
                               }}
                             >
@@ -408,25 +421,33 @@ export default function Page({ params }: PageProps) {
 
               {/* Advertisement Section */}
               {landingData.advertisementImage && (
-                <div className="mb-24">
-                  <div className="max-w-lg mx-auto"> {/* Controlled max width */}
-                    <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
-                      <div className="relative aspect-video">
-                        <Image 
-                          src={landingData.advertisementImage} 
-                          alt="Advertisement"
-                          fill
-                          className="rounded-lg object-cover"
-                          priority 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                // <div className="mb-24">
+                //   <div className="max-w-lg mx-auto"> {/* Controlled max width */}
+                //     <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
+                //       <div className="relative aspect-video">
+                //         <Image
+                //           src={landingData.advertisementImage}
+                //           alt="Advertisement"
+                //           fill
+                //           className="rounded-lg object-cover"
+                //           priority
+                //         />
+                //       </div>
+                //     </div>
+                //   </div>
+                // </div>
+
+                <StickyAdBanner
+                  adImage={landingData.advertisementImage}
+                  altText="Advertisement"
+                />
               )}
 
               {/* Exhibit Code Section */}
-              <div id="exhibit-section" className="max-w-4xl mx-auto scroll-mt-20">
+              <div
+                id="exhibit-section"
+                className="max-w-4xl mx-auto scroll-mt-20"
+              >
                 <div className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border border-amber-100">
                   <ExhibitCode client_code={params.client_code} />
                 </div>

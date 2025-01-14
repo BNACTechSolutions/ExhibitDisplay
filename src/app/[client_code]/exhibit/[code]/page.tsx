@@ -8,6 +8,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Volume2, Video } from "lucide-react";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { AxiosError } from "axios";
+import StickyAdBanner from "@/components/AdBanner";
 
 const ExhibitPage = () => {
   const router = useRouter();
@@ -17,7 +19,9 @@ const ExhibitPage = () => {
   const [language, setLanguage] = useState<string | null>(null);
   const [showISLModal, setShowISLModal] = useState(false);
   const [exhibitCode, setExhibitCode] = useState<string>("");
-  const [advertisementImage, setAdvertisementImage] = useState<string | null>(null);
+  const [advertisementImage, setAdvertisementImage] = useState<string | null>(
+    null
+  );
   const path = usePathname();
   const code = path.split("/").pop();
   const clientCode = path.split("/")[1];
@@ -43,8 +47,13 @@ const ExhibitPage = () => {
         );
         setTranslation(selectedTranslation || null);
         setAdvertisementImage(data.advertisementImage);
-      } catch (error) {
-        console.error("Error fetching exhibit detail:", error);
+      } catch (error:any) {
+        console.log(error)
+        if(error.status === 404) {
+          console.log("Exhibit not found");
+          router.push(`/404`);
+        }
+        // console.error("Error fetching exhibit detail:", error);
       }
     };
 
@@ -96,7 +105,7 @@ const ExhibitPage = () => {
               <div className="flex justify-between items-center h-16">
                 <Image
                   src="/logo/logo.png"
-                  style={{objectFit: "contain"}}
+                  style={{ objectFit: "contain" }}
                   alt="Logo"
                   width={120}
                   height={40}
@@ -149,7 +158,7 @@ const ExhibitPage = () => {
                 {translation?.title || exhibitData.title}
               </h1>
             </div>
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 animate-bounce hover:cursor-pointer" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
               <ChevronDown size={48} className="text-white opacity-80" />
             </div>
           </div>
@@ -215,20 +224,25 @@ const ExhibitPage = () => {
 
             {/* Advertisement Section */}
             {advertisementImage && (
-              <div className="mb-24">
-                <div className="max-w-lg mx-auto">
-                  <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
-                    <Image
-                      src={advertisementImage}
-                      alt="Advertisement"
-                      width={400}
-                      height={400}
-                      className="rounded-lg object-cover"
-                      priority
-                    />
-                  </div>
-                </div>
-              </div>
+              // <div className="mb-24">
+              //   <div className="max-w-lg mx-auto">
+              //     <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
+              //       <Image
+              //         src={advertisementImage}
+              //         alt="Advertisement"
+              //         width={400}
+              //         height={400}
+              //         className="rounded-lg object-cover"
+              //         priority
+              //       />
+              //     </div>
+              //   </div>
+              // </div>
+
+              <StickyAdBanner
+                adImage={advertisementImage}
+                altText="Advertisement"
+              />
             )}
           </div>
         </div>
