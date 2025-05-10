@@ -335,7 +335,7 @@ export default function Page({ params }: PageProps) {
             </div>
 
             <div
-              className="absolute bottom-24 left-1/2 transform -translate-x-1/2 animate-bounce hover:cursor-pointer"
+              className="absolute bottom-24 left-auto transform -translate-x-1/2 animate-bounce hover:cursor-pointer"
               onClick={() =>
                 window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
               }
