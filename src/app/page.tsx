@@ -1,11 +1,56 @@
 "use client";
 import { useState, useEffect } from "react";
 import { QrCode, Smartphone, Zap, Users, Star, ChevronDown, X } from "lucide-react";
+import { Html5Qrcode } from "html5-qrcode";
 
 export default function Page() {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+    useEffect(() => {
+      let html5QrCode: Html5Qrcode;
+
+      if (showQRScanner) {
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        const qrRegionId = "qr-reader";
+
+        html5QrCode = new Html5Qrcode(qrRegionId);
+
+        // Automatically select the rear camera if available
+        Html5Qrcode.getCameras().then((devices) => {
+          if (devices && devices.length) {
+            const backCamera = devices.find(device =>
+              device.label.toLowerCase().includes("back")
+            ) || devices[0]; // fallback to first if back not found
+
+            html5QrCode.start(
+              backCamera.id,
+              config,
+              (decodedText, decodedResult) => {
+                console.log("QR Code scanned:", decodedText);
+                html5QrCode.stop().then(() => {
+                  setShowQRScanner(false);
+                  // Redirect to the scanned URL
+                  window.location.href = decodedText;
+                });
+              },
+              (errorMessage) => {
+                // console.log("Scan error:", errorMessage);
+              }
+            ).catch((err) => {
+              console.error("Failed to start QR scanner:", err);
+            });
+          }
+        });
+      }
+
+      return () => {
+        if (html5QrCode && html5QrCode.isScanning) {
+          html5QrCode.stop().catch(() => {});
+        }
+      };
+    }, [showQRScanner]);
 
   useEffect(() => {
     // PWA install prompt handler
@@ -37,9 +82,9 @@ export default function Page() {
     }
   };
 
-  const handleQRScan = async () => {
+  const handleQRScan = () => {
     // Check if device supports camera
-    if (navigator.mediaDevices && await navigator.mediaDevices.getUserMedia()) {
+    if (typeof navigator !== "undefined" && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function") {
       setShowQRScanner(true);
     } else {
       alert("Camera not supported on this device");
@@ -133,15 +178,7 @@ export default function Page() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-              <div className="text-center">
-                <QrCode className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600">Camera view will appear here</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Point your camera at the QR code to scan
-                </p>
-              </div>
-            </div>
+            <div id="qr-reader" className="w-full aspect-square rounded-lg overflow-hidden" />
           </div>
         </div>
       )}
