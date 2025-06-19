@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { debounce } from "lodash";
 import { ChevronDown, Volume2, Video } from "lucide-react";
 import StickyAdBanner from "@/components/AdBanner";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt"; // Import the new component
 
 type Translation = {
   audioUrls: {
@@ -48,13 +49,13 @@ export default function Page({ params }: PageProps) {
   const [bgImage, setBgImage] = useState<string>("");
   const [language, setLanguage] = useState<string>("");
   const [landingData, setLandingData] = useState<LandingPage | null>(null);
-  const [showLanguageSelector, setShowLanguageSelector] =
-    useState<boolean>(false);
+  const [showLanguageSelector, setShowLanguageSelector] = useState<boolean>(false);
   const [visitorName, setVisitorName] = useState<string>("");
   const [visitorPhone, setVisitorPhone] = useState<string>("");
   const [formError, setFormError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showISLModal, setShowISLModal] = useState(false);
+  const [showPWAPrompt, setShowPWAPrompt] = useState(false); // New state for PWA prompt
 
   useEffect(() => {
     const savedLanguage = Cookies.get("language");
@@ -67,6 +68,8 @@ export default function Page({ params }: PageProps) {
       setVisitorPhone(savedVisitorPhone);
       setLanguage(savedLanguage || ""); // Default to saved language
       setShowLanguageSelector(false);
+      // Show PWA prompt after language selector is handled
+      setShowPWAPrompt(true);
     } else if (!savedLanguage) {
       setShowLanguageSelector(true);
     } else {
@@ -160,6 +163,10 @@ export default function Page({ params }: PageProps) {
         Cookies.set("visitorName", visitorName, { expires: 365 });
         Cookies.set("visitorPhone", visitorPhone, { expires: 365 }); // Save phone number in cookies
         setShowLanguageSelector(false);
+        // Show PWA prompt after successful form submission
+        setTimeout(() => {
+          setShowPWAPrompt(true);
+        }, 1000); // Small delay to let the language selector modal close
       } else {
         setFormError(
           result.message || "Error submitting visitor data. Please try again."
@@ -178,9 +185,14 @@ export default function Page({ params }: PageProps) {
 
   return (
     <>
+      {/* PWA Install Prompt */}
+      {showPWAPrompt && (
+        <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} />
+      )}
+
       {/* Language Selector Modal */}
       {showLanguageSelector && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
             <h2 className="text-lg font-semibold mb-4">Welcome</h2>
 
@@ -421,22 +433,6 @@ export default function Page({ params }: PageProps) {
 
               {/* Advertisement Section */}
               {landingData.advertisementImage && (
-                // <div className="mb-24">
-                //   <div className="max-w-lg mx-auto"> {/* Controlled max width */}
-                //     <div className="bg-white rounded-2xl p-6 shadow-xl border border-amber-100">
-                //       <div className="relative aspect-video">
-                //         <Image
-                //           src={landingData.advertisementImage}
-                //           alt="Advertisement"
-                //           fill
-                //           className="rounded-lg object-cover"
-                //           priority
-                //         />
-                //       </div>
-                //     </div>
-                //   </div>
-                // </div>
-
                 <StickyAdBanner
                   adImage={landingData.advertisementImage}
                   altText="Advertisement"
