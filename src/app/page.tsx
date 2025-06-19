@@ -42,7 +42,7 @@ export default function Page() {
     if (navigator.mediaDevices && await navigator.mediaDevices.getUserMedia()) {
       setShowQRScanner(true);
     } else {
-      alert('Camera not supported on this device');
+      alert("Camera not supported on this device");
     }
   };
 
@@ -261,10 +261,10 @@ export default function Page() {
                 About Aditi
               </h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                At Aditi, we're revolutionizing the way people interact with exhibitions and displays. Our AI-powered platform seamlessly integrates QR code technology with multilingual content delivery, creating immersive experiences that engage visitors like never before.
+                At Aditi, we&apos;re revolutionizing the way people interact with exhibitions and displays. Our AI-powered platform seamlessly integrates QR code technology with multilingual content delivery, creating immersive experiences that engage visitors like never before.
               </p>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Whether you're running a museum, gallery, or any exhibition space, Aditi provides the tools to make your content accessible, interactive, and memorable for every visitor.
+                Whether you&apos;re running a museum, gallery, or any exhibition space, Aditi provides the tools to make your content accessible, interactive, and memorable for every visitor.
               </p>
               <div className="grid grid-cols-3 gap-6">
                 <div className="text-center">
