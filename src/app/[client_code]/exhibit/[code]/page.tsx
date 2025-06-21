@@ -53,6 +53,11 @@ const ExhibitPage = () => {
           console.log("Exhibit not found");
           router.push(`/404`);
         }
+        if(error.status === 403)
+        {
+          console.log("Exhibit pending approval.");
+          router.push('/403'); // Redirection for exhibits pending approval
+        }
         // console.error("Error fetching exhibit detail:", error);
       }
     };
